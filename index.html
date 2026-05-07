@@ -31,18 +31,12 @@
   .bal-val { font-size: 1.1em; font-weight: bold; }
   .bal-val.pos { color: var(--income); }
   .bal-val.neg { color: var(--expense); }
-  .bal-val.totalpos { color: var(--income); }
-  .bal-val.totalneg { color: var(--expense); }
-
   .page { display: none; padding: 0 16px 100px; }
   .page.active { display: block; }
-
   .section-title {
     font-size: 0.85em; color: var(--muted); margin: 18px 0 10px;
     padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.06);
   }
-
-  /* 输入区 */
   .input-card {
     background: var(--card); border-radius: 16px; padding: 20px;
     margin-bottom: 16px;
@@ -72,8 +66,6 @@
     font-size: 1.1em; font-family: inherit; font-weight: bold; cursor: pointer;
     background: var(--accent); color: #fff; margin-top: 4px; transition: opacity 0.2s;
   }
-
-  /* 列表 */
   .person-card {
     background: var(--card); border-radius: 16px; padding: 16px;
     margin-bottom: 10px;
@@ -98,11 +90,8 @@
   .person-record-amount.pos { color: var(--income); }
   .person-record-amount.neg { color: var(--expense); }
   .person-record-del { background: none; border: none; color: var(--muted); font-size: 0.8em; cursor: pointer; margin-left: 8px; }
-
   .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); }
   .empty-icon { font-size: 3em; margin-bottom: 10px; }
-
-  /* 底部 */
   .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
     background: rgba(15,12,41,0.95); backdrop-filter: blur(10px);
@@ -112,12 +101,16 @@
   .nav-item { flex: 1; text-align: center; border: none; background: transparent; color: var(--muted); font-size: 0.72em; font-family: inherit; cursor: pointer; padding: 6px; }
   .nav-item .nav-icon { font-size: 1.5em; display: block; margin-bottom: 3px; }
   .nav-item.active { color: var(--accent); }
-
   .export-row { display: flex; gap: 10px; margin-top: 16px; }
   .export-btn {
     flex: 1; padding: 14px; border: 1.5px solid rgba(255,255,255,0.15);
     border-radius: 12px; background: transparent; color: var(--accent);
     font-size: 0.95em; font-family: inherit; cursor: pointer;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
   }
 </style>
 </head>
@@ -129,11 +122,11 @@
   <div class="balance-row">
     <div class="bal-item">
       <div class="bal-label">别人欠我</div>
-      <div class="bal-val totalpos" id="total receivable">¥0</div>
+      <div class="bal-val pos" id="total-receivable">¥0</div>
     </div>
     <div class="bal-item">
       <div class="bal-label">我欠别人</div>
-      <div class="bal-val totalneg" id="total-payable">¥0</div>
+      <div class="bal-val neg" id="total-payable">¥0</div>
     </div>
     <div class="bal-item">
       <div class="bal-label">净差额</div>
@@ -148,7 +141,6 @@
   <button class="tab" style="flex:1;padding:10px;border:none;border-radius:11px;background:transparent;color:var(--muted);font-size:0.95em;font-family:inherit;cursor:pointer" onclick="switchTab('stats')">统计</button>
 </div>
 
-<!-- 记一笔 -->
 <div id="page-add" class="page active">
   <div class="input-card">
     <div class="input-row">
@@ -168,249 +160,5 @@
     </div>
     <div class="input-row">
       <label class="input-label">备注（选填）</label>
-      <input class="input-field" id="note-input" type="text" placeholder="如：货款、还款、订金..." maxlength="50">
-    </div>
-    <button class="submit-btn" onclick="submitRecord()">保 存 💾</button>
-  </div>
-</div>
-
-<!-- 账目列表 -->
-<div id="page-list" class="page">
-  <div id="person-list"></div>
-</div>
-
-<!-- 统计 -->
-<div id="page-stats" class="page">
-  <div class="input-card">
-    <div style="font-size:0.85em;color:var(--muted);margin-bottom:12px">汇总概览</div>
-    <div class="input-row" style="display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--muted)">总发生笔数</span>
-      <span id="stats-count" style="font-weight:bold">0</span>
-    </div>
-    <div class="input-row" style="display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--muted)">总应收（+）</span>
-      <span id="stats receivable" style="font-weight:bold;color:var(--income)">¥0</span>
-    </div>
-    <div class="input-row" style="display:flex;justify-content:space-between;align-items:center">
-      <span style="color:var(--muted)">总应付（-）</span>
-      <span id="stats payable" style="font-weight:bold;color:var(--expense)">¥0</span>
-    </div>
-    <div class="input-row" style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;margin-top:4px">
-      <span style="color:var(--gold);font-weight:bold">净差额</span>
-      <span id="stats-net" style="font-weight:bold;color:var(--gold)">¥0</span>
-    </div>
-  </div>
-  <div class="section-title">按人员汇总</div>
-  <div id="person-summary"></div>
-  <div class="export-row">
-    <button class="export-btn" onclick="exportData()">📤 导出CSV</button>
-  </div>
-</div>
-
-<div class="bottom-nav">
-  <button class="nav-item active" onclick="switchTab('add')">
-    <span class="nav-icon">✏️</span>记一笔
-  </button>
-  <button class="nav-item" onclick="switchTab('list')">
-    <span class="nav-icon">📋</span>账目
-  </button>
-  <button class="nav-item" onclick="switchTab('stats')">
-    <span class="nav-icon">📊</span>统计
-  </button>
-</div>
-
-<script>
-let records = JSON.parse(localStorage.getItem('dandan_acct') || '[]');
-let currentChip = 'pos';
-
-function save() {
-  localStorage.setItem('dandan_acct', JSON.stringify(records));
-}
-
-function setChip(type) {
-  currentChip = type;
-  document.getElementById('chip-pos').classList.toggle('active', type==='pos');
-  document.getElementById('chip-neg').classList.toggle('active', type==='neg');
-}
-
-function submitRecord() {
-  const name = document.getElementById('name-input').value.trim();
-  const amount = parseFloat(document.getElementById('amount-input').value);
-  const note = document.getElementById('note-input').value.trim();
-
-  if (!name) { shakeEl('name-input'); return; }
-  if (!amount || amount <= 0) { shakeEl('amount-input'); return; }
-
-  const amountSigned = currentChip === 'pos' ? amount : -amount;
-  records.push({ id: Date.now(), name, amount: amountSigned, note, date: new Date().toISOString() });
-  save();
-
-  document.getElementById('name-input').value = '';
-  document.getElementById('amount-input').value = '';
-  document.getElementById('note-input').value = '';
-  updateTotals();
-
-  const btn = document.querySelector('.submit-btn');
-  btn.textContent = '✅ 已保存！';
-  setTimeout(() => btn.textContent = '保 存 💾', 1200);
-}
-
-function shakeEl(id) {
-  const el = document.getElementById(id);
-  el.style.borderColor = '#f87171';
-  el.style.animation = 'shake 0.4s';
-  setTimeout(() => { el.style.borderColor = ''; el.style.animation = ''; }, 400);
-}
-
-function updateTotals() {
-  let receivable = 0, payable = 0;
-  records.forEach(r => {
-    if (r.amount > 0) receivable += r.amount;
-    else payable += Math.abs(r.amount);
-  });
-  const net = receivable - payable;
-  const fmt = n => (n >= 0 ? '+' : '') + '¥' + n.toFixed(2);
-  document.getElementById('total-receivable').textContent = '¥' + receivable.toFixed(2);
-  document.getElementById('total-payable').textContent = '¥' + payable.toFixed(2);
-  const netEl = document.getElementById('total-net');
-  netEl.textContent = fmt(net);
-  netEl.className = 'bal-val ' + (net >= 0 ? 'pos' : 'neg');
-}
-
-function switchTab(tab) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('[onclick^="switchTab"]').forEach(t => t.style.background = 'transparent');
-  document.getElementById('page-' + tab).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach((n, i) => {
-    if (['add','list','stats'][i] === tab) n.classList.add('active');
-  });
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    if (['add','list','stats'][i] === tab) t.style.background = 'var(--accent)';
-    else t.style.background = 'transparent';
-  });
-  if (tab === 'list') renderList();
-  if (tab === 'stats') renderStats();
-}
-
-function renderList() {
-  const byPerson = {};
-  records.forEach(r => {
-    if (!byPerson[r.name]) byPerson[r.name] = { balance: 0, records: [] };
-    byPerson[r.name].balance += r.amount;
-    byPerson[r.name].records.push(r);
-  });
-  const list = document.getElementById('person-list');
-  const names = Object.keys(byPerson).sort((a,b) => Math.abs(byPerson[b].balance) - Math.abs(byPerson[a].balance));
-
-  if (names.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>还没有记录，<br>去记一笔吧！</p></div>`;
-    return;
-  }
-  list.innerHTML = names.map(name => {
-    const { balance, records: recs } = byPerson[name];
-    const balClass = balance > 0 ? 'pos' : balance < 0 ? 'neg' : 'zero';
-    const balSign = balance >= 0 ? '+' : '';
-    const sortedRecs = [...recs].sort((a,b) => new Date(b.date) - new Date(a.date));
-    return `<div class="person-card">
-      <div class="person-header">
-        <div class="person-name">👤 ${name}</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="person-balance ${balClass}">${balSign}¥${Math.abs(balance).toFixed(2)}</div>
-          <button class="person-del" onclick="deletePerson('${name}')">删除此人</button>
-        </div>
-      </div>
-      <div class="person-records">
-        ${sortedRecs.slice(0,5).map(r => {
-          const sign = r.amount >= 0 ? '+' : '-';
-          const cls = r.amount >= 0 ? 'pos' : 'neg';
-          const d = new Date(r.date);
-          const ds = `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-          return `<div class="person-record">
-            <div>
-              <span class="person-record-note">${r.note||'—'}</span>
-              <span style="color:var(--muted);font-size:0.8em;margin-left:6px">${ds}</span>
-            </div>
-            <div>
-              <span class="person-record-amount ${cls}">${sign}¥${Math.abs(r.amount).toFixed(2)}</span>
-              <button class="person-record-del" onclick="deleteRecord(${r.id})">✕</button>
-            </div>
-          </div>`;
-        }).join('')}
-        ${recs.length > 5 ? `<div style="font-size:0.8em;color:var(--muted);padding-top:4px">还有${recs.length-5}条记录...</div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderStats() {
-  let receivable = 0, payable = 0;
-  records.forEach(r => {
-    if (r.amount > 0) receivable += r.amount;
-    else payable += Math.abs(r.amount);
-  });
-  const net = receivable - payable;
-  document.getElementById('stats-count').textContent = records.length;
-  document.getElementById('stats-receivable').textContent = '¥' + receivable.toFixed(2);
-  document.getElementById('stats-payable').textContent = '¥' + payable.toFixed(2);
-  document.getElementById('stats-net').textContent = (net>=0?'+':'') + '¥' + net.toFixed(2);
-
-  const byPerson = {};
-  records.forEach(r => {
-    if (!byPerson[r.name]) byPerson[r.name] = 0;
-    byPerson[r.name] += r.amount;
-  });
-  const sorted = Object.entries(byPerson).sort((a,b) => b[1]-a[1]);
-  const el = document.getElementById('person-summary');
-  el.innerHTML = sorted.map(([name, bal]) => {
-    const cls = bal > 0 ? 'pos' : bal < 0 ? 'neg' : 'zero';
-    const sign = bal >= 0 ? '+' : '';
-    return `<div class="person-card" style="padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span>👤 ${name}</span>
-        <span class="person-balance ${cls}">${sign}¥${Math.abs(bal).toFixed(2)}</span>
-      </div>
-    </div>`;
-  }).join('');
-  if (sorted.length === 0) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>暂无统计数据</p></div>`;
-  }
-}
-
-function deleteRecord(id) {
-  records = records.filter(r => r.id !== id);
-  save();
-  updateTotals();
-  renderList();
-}
-
-function deletePerson(name) {
-  if (!confirm('删除 ' + name + ' 的所有记录？')) return;
-  records = records.filter(r => r.name !== name);
-  save();
-  updateTotals();
-  renderList();
-}
-
-function exportData() {
-  if (records.length === 0) { alert('没有数据可导出'); return; }
-  const csv = ['姓名,金额,方向,备注,日期'].concat(
-    records.map(r => {
-      const sign = r.amount >= 0 ? '应收' : '应付';
-      const abs = Math.abs(r.amount);
-      return `${r.name},${abs},${sign},${r.note||''},${new Date(r.date).toLocaleString('zh-CN')}`;
-    })
-  ).join('\n');
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `蛋蛋账本_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-updateTotals();
-</script>
-</body>
-</html>
+      <input class="i
+...(truncated)...
